@@ -23,8 +23,11 @@ function generateStoryMarkup(story) {
   // console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
+  const favoriteStoryIds = currentUser.favorites.map(story => story.storyId);
+  const favoriteImg = favoriteStoryIds.includes(story.storyId) ? "./favorite-filled.png" : "./favorite-outline.png"
   return $(`
       <li id="${story.storyId}">
+        <img class="favorite-icon" src="${favoriteImg}" />
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -47,6 +50,17 @@ function putStoriesOnPage() {
     const $story = generateStoryMarkup(story);
     $allStoriesList.append($story);
   }
+
+  $(".favorite-icon").on('click', async function(evt) {
+    console.log("favoriting story...")
+    const storyId = $(this).parent().attr('id');
+    const isStoryFavorited = currentUser.favorites.map(story => story.storyId).includes(storyId);
+    const newImgSrc = isStoryFavorited ? './favorite-outline.png' : './favorite-filled.png';
+    $(this).attr('src', newImgSrc);
+    console.log($(this))
+    await currentUser.favoriteStory(storyId, !isStoryFavorited);
+    getAndShowStoriesOnStart();
+  });
 
   $allStoriesList.show();
 }

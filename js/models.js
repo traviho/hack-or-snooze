@@ -198,4 +198,20 @@ class User {
       return null;
     }
   }
+
+  /** Favorites a story for this user */
+  async favoriteStory(storyId, favorite=true) {
+    try {
+      const response = await axios({
+        url: `${BASE_URL}/users/${this.username}/favorites/${storyId}`,
+        method: favorite ? "POST" : "DELETE",
+        params: { token: this.loginToken },
+      });
+      console.log(response)
+      this.favorites = response.data.user.favorites;
+    } catch (err) {
+      console.error("favoriteStory failed", err);
+      return null;
+    }
+  }
 }
