@@ -109,6 +109,7 @@ class User {
     // instantiate Story instances for the user's favorites and ownStories
     this.favorites = favorites.map(s => new Story(s));
     this.ownStories = ownStories.map(s => new Story(s));
+    console.log(this.favorites);
 
     // store the login token on the user so it's easy to find for API calls.
     this.loginToken = token;
@@ -208,7 +209,7 @@ class User {
         params: { token: this.loginToken },
       });
       console.log(response)
-      this.favorites = response.data.user.favorites;
+      this.favorites = response.data.user.favorites.map(story => new Story(story));
     } catch (err) {
       console.error("favoriteStory failed", err);
       return null;

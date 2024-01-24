@@ -7,6 +7,7 @@ let storyList;
 
 async function getAndShowStoriesOnStart() {
   storyList = await StoryList.getStories();
+  console.log(storyList);
   $storiesLoadingMsg.remove();
 
   putStoriesOnPage();
@@ -40,13 +41,15 @@ function generateStoryMarkup(story) {
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
-function putStoriesOnPage() {
+function putStoriesOnPage(favorites=false) {
   console.debug("putStoriesOnPage");
 
   $allStoriesList.empty();
 
   // loop through all of our stories and generate HTML for them
-  for (let story of storyList.stories) {
+  const storiesToRender = favorites ? currentUser.favorites : storyList.stories;
+  console.log(storiesToRender);
+  for (let story of storiesToRender) {
     const $story = generateStoryMarkup(story);
     $allStoriesList.append($story);
   }
@@ -59,7 +62,11 @@ function putStoriesOnPage() {
     $(this).attr('src', newImgSrc);
     console.log($(this))
     await currentUser.favoriteStory(storyId, !isStoryFavorited);
-    getAndShowStoriesOnStart();
+    if (favorites == true) {
+      putStoriesOnPage(true);
+    } else {
+      getAndShowStoriesOnStart();
+    }
   });
 
   $allStoriesList.show();
@@ -79,3 +86,9 @@ async function submitStory(evt) {
 }
 
 $("#story-form").on('submit', submitStory);
+
+/** Filters to favorited stories */
+
+$("#nav-favorites").on('click', function(evt) {
+  putStoriesOnPage(true);
+});
