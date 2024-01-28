@@ -9,7 +9,7 @@
 function navAllStories(evt) {
   console.debug("navAllStories", evt);
   hidePageComponents();
-  putStoriesOnPage();
+  getAndShowStoriesOnStart();
 }
 
 $body.on("click", "#nav-all", navAllStories);
@@ -49,3 +49,17 @@ function updateNavOnLogin() {
   $navLogOut.show();
   $navUserProfile.text(`${currentUser.username}`).show();
 }
+
+/** Filters to favorited stories */
+
+$("#nav-favorites").on('click', function(evt) {
+  hidePageComponents()
+  putStoriesOnPage(StoryFilter.FAVORITES);
+});
+
+/** Filters to my stories */
+
+$("#nav-my-stories").on('click', function(evt) {
+  hidePageComponents()
+  putStoriesOnPage(StoryFilter.MY_STORIES)
+});

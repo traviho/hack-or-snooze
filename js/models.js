@@ -79,7 +79,9 @@ class StoryList {
       method: "POST",
       data: {token: user.loginToken, story: newStory},
     });
-    return new Story(response.data.story)
+    const story = new Story(response.data.story);
+    user.ownStories.push(story);
+    return story;
   }
 }
 
@@ -110,6 +112,7 @@ class User {
     this.favorites = favorites.map(s => new Story(s));
     this.ownStories = ownStories.map(s => new Story(s));
     console.log(this.favorites);
+    console.log(this.ownStories);
 
     // store the login token on the user so it's easy to find for API calls.
     this.loginToken = token;
@@ -212,6 +215,28 @@ class User {
       this.favorites = response.data.user.favorites.map(story => new Story(story));
     } catch (err) {
       console.error("favoriteStory failed", err);
+      return null;
+    }
+  }
+
+  /** Deletes a story this user has created */
+  async deleteStory(storyId, user) {
+    try {
+      const response = await axios({
+        url: `${BASE_URL}/stories/${storyId}`,
+        method: "DELETE",
+        params: { token: this.loginToken },
+      });
+      const ownStoryIndex = user.ownStories.findIndex(obj => obj['storyId'] == storyId);
+      user.ownStories.splice(ownStoryIndex, 1);
+
+      const favoriteStoryIndex = user.favorites.findIndex(obj => obj['storyId'] == storyId);
+      if (favoriteStoryIndex > -1) {
+        user.favorites.splice(favoriteStoryIndex, 1);
+      }
+      console.log(response)
+    } catch (err) {
+      console.error("deleteStory failed", err);
       return null;
     }
   }

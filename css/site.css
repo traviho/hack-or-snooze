@@ -141,3 +141,7 @@ form > hr {
   width: 12px;
   height: 12px;
 }
+
+.favorite-icon, .delete-icon {
+  cursor: pointer;
+}

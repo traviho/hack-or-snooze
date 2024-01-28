@@ -1,5 +1,11 @@
 "use strict";
 
+const StoryFilter = Object.freeze({
+  ALL: "ALL",
+  FAVORITES: 'FAVORITES',
+  MY_STORIES: "MY_STORIES"
+});
+
 // This is the global list of the stories, an instance of StoryList
 let storyList;
 
@@ -20,14 +26,15 @@ async function getAndShowStoriesOnStart() {
  * Returns the markup for the story.
  */
 
-function generateStoryMarkup(story) {
+function generateStoryMarkup(story, ownStory=false) {
   // console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
   const favoriteStoryIds = currentUser.favorites.map(story => story.storyId);
-  const favoriteImg = favoriteStoryIds.includes(story.storyId) ? "./favorite-filled.png" : "./favorite-outline.png"
+  const favoriteImg = favoriteStoryIds.includes(story.storyId) ? "./favorite-filled.png" : "./favorite-outline.png";
   return $(`
-      <li id="${story.storyId}">
+      <li id="${story.storyId}" ${ownStory ? "style='list-style-type:none'" : ""}>
+        ${ownStory ? "<i class='fas fa-trash-alt delete-icon'></i>" : ""}
         <img class="favorite-icon" src="${favoriteImg}" />
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
@@ -41,16 +48,23 @@ function generateStoryMarkup(story) {
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
-function putStoriesOnPage(favorites=false) {
+function putStoriesOnPage(storyFilter) {
   console.debug("putStoriesOnPage");
 
   $allStoriesList.empty();
 
   // loop through all of our stories and generate HTML for them
-  const storiesToRender = favorites ? currentUser.favorites : storyList.stories;
+  let storiesToRender;
+  if (storyFilter == StoryFilter.FAVORITES) {
+    storiesToRender = currentUser.favorites;
+  } else if (storyFilter == StoryFilter.MY_STORIES) {
+    storiesToRender = currentUser.ownStories.toReversed();
+  } else {
+    storiesToRender = storyList.stories;
+  }
   console.log(storiesToRender);
   for (let story of storiesToRender) {
-    const $story = generateStoryMarkup(story);
+    const $story = generateStoryMarkup(story, storyFilter == StoryFilter.MY_STORIES);
     $allStoriesList.append($story);
   }
 
@@ -62,11 +76,20 @@ function putStoriesOnPage(favorites=false) {
     $(this).attr('src', newImgSrc);
     console.log($(this))
     await currentUser.favoriteStory(storyId, !isStoryFavorited);
-    if (favorites == true) {
-      putStoriesOnPage(true);
+    if (storyFilter == StoryFilter.FAVORITES || storyFilter == StoryFilter.MY_STORIES) {
+      putStoriesOnPage(storyFilter);
     } else {
       getAndShowStoriesOnStart();
     }
+  });
+
+  $(".delete-icon").on('click', async function(evt) {
+    console.log("deleting story...")
+    console.log($(this))
+    const storyId = $(this).parent().attr('id');
+    console.log(storyId);
+    await currentUser.deleteStory(storyId, currentUser);
+    putStoriesOnPage(storyFilter);
   });
 
   $allStoriesList.show();
@@ -86,9 +109,3 @@ async function submitStory(evt) {
 }
 
 $("#story-form").on('submit', submitStory);
-
-/** Filters to favorited stories */
-
-$("#nav-favorites").on('click', function(evt) {
-  putStoriesOnPage(true);
-});
