@@ -34,14 +34,18 @@ function generateStoryMarkup(story, ownStory=false) {
   const favoriteImg = favoriteStoryIds.includes(story.storyId) ? "./favorite-filled.png" : "./favorite-outline.png";
   return $(`
       <li id="${story.storyId}" ${ownStory ? "style='list-style-type:none'" : ""}>
-        ${ownStory ? "<i class='fas fa-trash-alt delete-icon'></i>" : ""}
-        <img class="favorite-icon" src="${favoriteImg}" />
-        <a href="${story.url}" target="a_blank" class="story-link">
-          ${story.title}
-        </a>
-        <small class="story-hostname">(${hostName})</small>
-        <small class="story-author">by ${story.author}</small>
-        <small class="story-user">posted by ${story.username}</small>
+        <div style="display: flex;">
+          ${ownStory ? "<i class='fas fa-trash-alt delete-icon'></i>" : ""}
+          <img class="favorite-icon" src="${favoriteImg}" />
+          <div style="margin-left:10px">
+            <a href="${story.url}" target="a_blank" class="story-link">
+              ${story.title}
+            </a>
+            <small class="story-hostname">(${hostName})</small>
+            <small class="story-author">by ${story.author}</small>
+            <small class="story-user">posted by ${story.username}</small>
+          </div>
+        </div>
       </li>
     `);
 }

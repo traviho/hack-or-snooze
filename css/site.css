@@ -29,7 +29,6 @@ a:hover {
   text-decoration: underline;
 }
 
-
 /* Site layout */
 
 /* This is the basic box that the main part of the page goes into */
@@ -140,6 +139,7 @@ form > hr {
 .favorite-icon {
   width: 12px;
   height: 12px;
+  margin-left: 4px;
 }
 
 .favorite-icon, .delete-icon {

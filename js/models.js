@@ -160,6 +160,7 @@ class User {
     });
 
     let { user } = response.data;
+    $(".navbar-middle").removeClass("hidden");
 
     return new User(
       {
@@ -186,6 +187,7 @@ class User {
       });
 
       let { user } = response.data;
+      $(".navbar-middle").removeClass("hidden");
 
       return new User(
         {
